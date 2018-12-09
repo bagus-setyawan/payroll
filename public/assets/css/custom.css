@@ -1,0 +1,11 @@
+.bg-body {
+	background-image: url(../images/symphony.png);
+    background-position: 0 0 !important;
+    background-repeat: repeat !important;
+}
+.box {
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.nav-tabs-custom {
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
