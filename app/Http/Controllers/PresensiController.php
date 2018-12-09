@@ -10,6 +10,30 @@ use Illuminate\Support\Facades\DB;
 
 class PresensiController extends Controller
 {
+    public function index()
+    {
+        $absensis = Absensi::with('user')->get();
+
+        return view('pages.presensi.index', compact('absensis'));
+    }
+
+    public function show(Request $request)
+    {
+        $absensi = Absensi::with('user')->find($request->id);
+
+        return response()->json($absensi);
+    }
+
+    public function update(Request $request)
+    {
+        $absensi = Absensi::find($request->id);
+        $absensi->fill($request->all());
+        $absensi->save();
+
+        $request->session()->flash('msg', 'Presensi berhasil diubah');
+        return redirect()->back();
+    }
+
     public function check(Request $request)
     {
         $email = $request->input('email');

@@ -53,7 +53,14 @@
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
           <ul class="nav navbar-nav">
-            <li><a href="{{ url('login') }}">Login</a></li>
+            @if (Auth::check())
+                <form action="{{ url('logout') }}" method="post" id="logoutForm">
+                    @csrf
+                </form>
+                <li><a href="#" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
+            @else
+                <li><a href="{{ url('login') }}">Login</a></li>
+            @endif
           </ul>
         </div>
         <!-- /.navbar-custom-menu -->
