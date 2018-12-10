@@ -34,6 +34,48 @@ class PresensiController extends Controller
         return redirect()->back();
     }
 
+    public function delete(Request $request)
+    {
+        $absensi = Absensi::findOrFail($request->id);
+        $absensi->delete();
+
+        $request->session()->flash('msg', 'Presensi berhasil dihapus');
+        return redirect()->back();
+    }
+
+    public function front()
+    {
+        $absensis = Absensi::with('user')
+                    ->orderBy('absen_masuk', 'ASC')
+                    ->whereDate('absen_masuk', Carbon::now())
+                    ->get();
+        $now = Carbon::now()->toFormattedDateString();
+
+        return view('welcome', compact('absensis', 'now'));
+    }
+
+    public function absen_data()
+    {
+        $absensis = Absensi::with('user')
+                    ->orderBy('absen_masuk', 'ASC')
+                    ->get();
+        $data = '';
+        foreach ($absensis as $absensi) {
+            $data .= "<tr>
+                <td>".$absensi->user->id."</td>
+                <td>".$absensi->user->name."</td>
+                <td>".$absensi->absen_masuk."</td>
+                <td>".$absensi->absen_pulang."</td>
+                <td>".$absensi->lama_lembur.' jam'."</td>
+                <td>".$absensi->lama_telat.' jam'."</td>
+            </tr>";
+        }
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
     public function check(Request $request)
     {
         $email = $request->input('email');
@@ -70,7 +112,7 @@ class PresensiController extends Controller
             if ($jam_sekarang->diffInHours($jam_masuk, false) != -1 && $jam_sekarang->diffInHours($jam_masuk, false) != 0 && !$jam_sekarang->between($jam_masuk, $jam_keluar)) {
                 return response()->json([
                     'error' => true,
-                    'msg' => "Belum waktunya absen yah..."
+                    'msg' => "Belum waktunya absen lho..."
                 ]);
             }
 
@@ -78,6 +120,7 @@ class PresensiController extends Controller
                 $data = [
                     'user_id' => $user->id,
                     'absen_masuk' => $jam_sekarang->toDateTimeString(),
+                    'capture_masuk' => $request->input('capture')
                 ];
                 if ($jam_masuk->diffInMinutes($jam_sekarang, false) > 0) {
                     $data['lama_telat'] = ceil($jam_masuk->diffInMinutes($jam_sekarang, false)/60);
@@ -96,7 +139,8 @@ class PresensiController extends Controller
                 ]);
             }else {
                 $data = [
-                    'absen_pulang' => $jam_sekarang->toDateTimeString()
+                    'absen_pulang' => $jam_sekarang->toDateTimeString(),
+                    'capture_pulang' => $request->input('capture')
                 ];
                 if ($jam_keluar->diffInMinutes($jam_sekarang, false) > 0) {
                     echo($jam_keluar->diffInHours($jam_sekarang, false));

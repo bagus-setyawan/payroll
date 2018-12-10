@@ -13,5 +13,7 @@
 <script src="{{ asset('assets/plugins/fastclick/fastclick.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('assets/dist/js/app.min.js') }}"></script>
+<!-- Sweet Alert 2 -->
+<script src="{{ asset('assets/js/sweetalert2.all.js') }}"></script>
 <!-- Custom -->
 <script src="{{ asset('assets/js/custom.js') }}"></script>

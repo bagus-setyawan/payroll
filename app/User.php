@@ -29,7 +29,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Relation : Role
+     * Relations
      *
      * @return void
      */
@@ -41,5 +41,10 @@ class User extends Authenticatable
     public function biodata()
     {
         return $this->hasOne('App\Biodata', 'user_id', 'id');
+    }
+
+    public function absensis()
+    {
+        return $this->hasMany('App\Absensi', 'user_id', 'id');
     }
 }

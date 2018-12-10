@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="{{ asset('assets/libs/font-awesome.min.css') }}">
   <!-- Ionicons -->
   <link rel="stylesheet" href="{{ asset('assets/libs/ionicons.min.css') }}">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{{ asset("assets/plugins/datatables/dataTables.bootstrap.css") }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('assets/dist/css/AdminLTE.min.css') }}">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -57,6 +59,7 @@
                 <form action="{{ url('logout') }}" method="post" id="logoutForm">
                     @csrf
                 </form>
+                <li><a href="{{ url('dashboard') }}">Dashboard</a></li>
                 <li><a href="#" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
             @else
                 <li><a href="{{ url('login') }}">Login</a></li>
@@ -80,6 +83,16 @@
 
       <!-- Main content -->
       <section class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box">
+                    <div class="box-body">
+                        <h3>Silahkan scan QR Code yang ada pada kartu anggota anda</h3>
+                        <small class="text-danger">*Foto absen anda terkirim ke admin, jangan coba-coba titip absen</small>
+                    </div>
+                </div>
+            </div>
+        </div>
 		<div class="row">
 			<div class="col-md-4">
                 <div class="box box-primary box-solid">
@@ -131,6 +144,39 @@
         </div>
         <div class="row">
             {{-- Tabel absensi --}}
+            <div class="col-md-12">
+                <div class="box box-primary box-solid">
+                    <div class="box-header">
+                        <h3 class="box-title">Presensi Hari ini {{ $now }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Id User</th>
+                                    <th>Nama</th>
+                                    <th>Absen Masuk</th>
+                                    <th>Absen Pulang</th>
+                                    <th>Lembur</th>
+                                    <th>Telat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($absensis as $absensi)
+                                    <tr>
+                                        <td>{{ $absensi->user->id }}</td>
+                                        <td>{{ $absensi->user->name }}</td>
+                                        <td>{{ $absensi->absen_masuk }}</td>
+                                        <td>{{ $absensi->absen_pulang }}</td>
+                                        <td>{{ $absensi->lama_lembur.' jam' }}</td>
+                                        <td>{{ $absensi->lama_telat.' jam' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
       </section>
       <!-- /.content -->
@@ -165,21 +211,33 @@
 <script src="{{ asset('assets/js/instascan.min.js') }}"></script>
 <!-- Sweet Alert 2 -->
 <script src="{{ asset('assets/js/sweetalert2.all.js') }}"></script>
+<!-- DataTables -->
+<script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/plugins/datatables/dataTables.bootstrap.min.js') }}"></script>
 <!-- Custom -->
 <script src="{{ asset('assets/js/custom.js') }}"></script>
 
 <script>
-    var scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-    scanner.addListener('scan', function (content) {
-        resetBiodata();
+    var tbl = $('table').dataTable({
+        scrollX: true,
+        order: [[2, 'asc']]
+    });
+    var scanner = new Instascan.Scanner({ 
+        video: document.getElementById('preview'),
+        captureImage: true
+     });
+    scanner.addListener('scan', function (content, image) {
         $.ajax({
-            type: 'GET',
+            type: 'POST',
             url: '{{ url('presensi/check') }}',
             dataType: 'JSON',
             data: {
-                email: content
+                email: content,
+                capture: image,
+                _token: '{{ csrf_token() }}'
             },
             success: function(res){
+                resetBiodata();
                 if (res.error) {
                     notif({
                         type: 'error',
@@ -197,6 +255,7 @@
                         type: 'success',
                         title: res.msg
                     });
+                    get_absen_data();
                 }
             },
             error: function(error){
@@ -240,6 +299,25 @@
         $('#presensi').val('');
         $('#terlambat').val('');
         $('#lembur').val('');
+    }
+
+    function get_absen_data(){
+        $.ajax({
+            url: '{{ url('presensi/absen_data') }}',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(res){
+                tbl.fnDestroy();
+                $('tbody').html(res.data);
+                tbl = $('table').dataTable({
+                    scrollX: true,
+                    order: [[2, 'asc']]
+                });
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
     }
 </script>
 </body>

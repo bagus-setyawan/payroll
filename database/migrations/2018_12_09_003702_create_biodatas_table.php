@@ -16,7 +16,7 @@ class CreateBiodatasTable extends Migration
         Schema::create('biodatas', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->enum('status', ['pns', 'nonpns']);
             $table->date('tgl_masuk');
             $table->unsignedInteger('shift_id');

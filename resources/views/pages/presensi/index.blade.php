@@ -25,6 +25,8 @@
                                 <th>Jam Pulang</th>
                                 <th>Lama Lembur</th>
                                 <th>Lama Telat</th>
+                                <th>Foto Masuk</th>
+                                <th>Foto Pulang</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -36,8 +38,10 @@
                                     <td>{{ $presensi->user->name }}</td>
                                     <td>{{ $presensi->absen_masuk }}</td>
                                     <td>{{ $presensi->absen_pulang }}</td>
-                                    <td>{{ $presensi->lama_lembur }}</td>
-                                    <td>{{ $presensi->lama_telat }}</td>
+                                    <td>{{ $presensi->lama_lembur }} jam</td>
+                                    <td>{{ $presensi->lama_telat }} jam</td>
+                                    <td><img src="{{ $presensi->capture_masuk }}" class="img-responsive" alt="" style="width:100px;height:70px;"></td>
+                                    <td><img src="{{ $presensi->capture_pulang }}" class="img-responsive" alt="" style="width:100px;height:70px;"></td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="edit('{{ $presensi->id }}')"><i class="fa fa-pencil"></i> Edit</button>
                                         <form action="{{ url('data/presensi/delete') }}" method="post">
@@ -106,7 +110,8 @@
             },
             dataType: 'JSON',
             success: function(res){
-                if(res.length > 0){
+                if(res){
+                    console.log('true');
                     $("input[name=id]").val(res.id);
                     $("input[name=user_id]").val(res.user_id);
                     $("input[name=name]").val(res.user.name);

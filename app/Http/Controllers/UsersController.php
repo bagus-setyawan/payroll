@@ -45,7 +45,7 @@ class UsersController extends Controller
             'tgl_masuk' => $request->tgl_masuk,
             'shift_id' => $request->shift_id,
             'golongan_id' => $request->golongan_id,
-            'foto' => $filename,
+            'foto' => url('assets/images/'.$filename),
             'nip' => $request->nip,
             'gapok' => $request->gapok
         ]);

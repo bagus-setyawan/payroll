@@ -11,15 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'PresensiController@front');
 
 Auth::routes();
 
-Route::get('presensi/check', 'PresensiController@check');
+Route::post('presensi/check', 'PresensiController@check');
+Route::get('presensi/absen_data', 'PresensiController@absen_data');
 
-Route::group(['middleware' => ['web']], function () {
+Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('dashboard', 'DashBoardController@index');
 
     Route::group(['prefix' => 'data'], function () {
@@ -49,10 +48,10 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('golongan', 'GolonganController@index');
         Route::group(['prefix' => 'golongan'], function () {
             Route::get('create', 'GolonganController@create');
-            Route::post('store/golongan', 'GolonganController@store_golongan');
-            Route::post('store/masa_kerja', 'GolonganController@store_masa_kerja');
-            Route::post('delete/golongan', 'GolonganController@delete_golongan');
-            Route::post('delete/masa_kerja', 'GolonganController@delete_masa_kerja');
+            Route::post('golongan', 'GolonganController@store_golongan');
+            Route::post('store_masa_kerja', 'GolonganController@store_masa_kerja');
+            Route::post('delete_golongan', 'GolonganController@delete_golongan');
+            Route::post('delete_masa_kerja', 'GolonganController@delete_masa_kerja');
         });
 
         /**
@@ -62,11 +61,14 @@ Route::group(['middleware' => ['web']], function () {
         Route::group(['prefix' => 'presensi'], function () {
             Route::get('show', 'PresensiController@show');
             Route::post('update', 'PresensiController@update');
+            Route::post('delete', 'PresensiController@delete');
         });
 
     });
     
     Route::group(['prefix' => 'penggajian'], function () {
         Route::get('', 'SalaryController@index');
+        Route::get('proses', 'SalaryController@proses');
+        Route::get('print', 'SalaryController@print');
     });
 });
