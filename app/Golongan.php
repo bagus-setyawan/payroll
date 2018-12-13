@@ -21,6 +21,13 @@ class Golongan extends Model
      protected $guarded = ['id'];
 
      /**
+      * Timestamps
+      *
+      * @var boolean
+      */
+     public $timestamps = false;
+
+     /**
       * Relations
       *
       * @return void

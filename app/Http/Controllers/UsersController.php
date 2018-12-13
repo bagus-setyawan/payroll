@@ -58,7 +58,7 @@ class UsersController extends Controller
     public function delete(Request $request)
     {
         $user = User::findOrFail($request->id)->delete();
-        $biodata = Biodata::find($request->id)->delete();
+        $biodata = Biodata::where('user_id', $request->id)->delete();
 
         $request->session()->flash('msg', 'User dan biodata berhasil dihapus');
         return redirect()->back();
@@ -67,5 +67,19 @@ class UsersController extends Controller
     protected function getFileName($file)
     {
         return str_random(32) . '.' . $file->extension();
+    }
+
+    public function cetak($id=null)
+    {
+        $users = User::with(['biodata' => function ($query){
+                    $query->with('shift', 'golongan');
+                }])
+                ->where('role_id', 2);
+        if ($id != null){
+            $users->where('id', $id);
+        }
+        $users = $users->get();
+
+        return view('pages.user.print', compact('users'));
     }
 }

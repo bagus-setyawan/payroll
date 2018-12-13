@@ -13,6 +13,7 @@
             <div class="box box-primary box-solid">
                 <div class="box-header">
                     <h3 class="box-title">Data User</h3>
+                    <button class="btn btn-default btn-sm pull-right" style="background-color:orange;" onclick="window.open('{{ url('data/user/cetak') }}', '_blank')"><i class="fa fa-print"></i> Cetak Kartu</button>
                 </div>
                 <div class="box-body">
                     <table class="table table-bordered datatable">
@@ -39,11 +40,14 @@
                                     <td>{{ $user->biodata->shift->id }}</td>
                                     <td>{{ $user->biodata->tgl_masuk }}</td>
                                     <td>
-                                        <form action="{{ url('data/user/delete') }}" method="post">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $user->id }}">
-                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Hapus</button>
-                                        </form>
+                                        <div class="btn-group-vertical">
+                                            <button onclick="window.open('{{ url('data/user/cetak/'.$user->id) }}')" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Kartu</button>
+                                            <form action="{{ url('data/user/delete') }}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $user->id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Hapus</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

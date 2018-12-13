@@ -28,6 +28,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('user', 'UsersController@index');
         Route::group(['prefix' => 'user'], function () {
             Route::get('create', 'UsersController@create');
+            Route::get('cetak/{id?}', 'UsersController@cetak');
             Route::post('store', 'UsersController@store');
             Route::post('delete', 'UsersController@delete');
         });
@@ -48,7 +49,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('golongan', 'GolonganController@index');
         Route::group(['prefix' => 'golongan'], function () {
             Route::get('create', 'GolonganController@create');
-            Route::post('golongan', 'GolonganController@store_golongan');
+            Route::post('store_golongan', 'GolonganController@store_golongan');
             Route::post('store_masa_kerja', 'GolonganController@store_masa_kerja');
             Route::post('delete_golongan', 'GolonganController@delete_golongan');
             Route::post('delete_masa_kerja', 'GolonganController@delete_masa_kerja');
