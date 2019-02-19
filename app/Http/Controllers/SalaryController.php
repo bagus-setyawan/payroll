@@ -20,14 +20,7 @@ class SalaryController extends Controller
     {
         $periode = Carbon::parse($request->input('periode'));
 
-        $gajis = DB::select("SELECT 0 AS total, 0 AS potongan, 0 AS tambahan, 0 AS lama_kerja, users.id, users.`name`, users.email, biodatas.`tgl_masuk`, biodatas.foto, biodatas.`status`, biodatas.`gapok` AS gapok, golongans.name AS gol, golongans.id AS gol_id, lemburs.nilai AS biaya_lembur, telats.nilai AS biaya_telat, 
-        COALESCE((SELECT SUM(lama_lembur) FROM absensis WHERE YEAR(`absen_masuk`) = ".$periode->year." AND MONTH(`absen_masuk`) = ".$periode->month." AND user_id = users.id),0) AS lama_lembur,
-        COALESCE((SELECT SUM(lama_telat) FROM absensis WHERE YEAR(`absen_masuk`) = ".$periode->year." AND MONTH(`absen_masuk`) = ".$periode->month." AND user_id = users.id),0) AS lama_telat
-        FROM `users`
-        INNER JOIN `biodatas` ON `biodatas`.`user_id` = `users`.`id` 
-        INNER JOIN `lemburs` ON `lemburs`.`status` = `biodatas`.`status` 
-        INNER JOIN `telats` ON `telats`.`status` = `biodatas`.`status`
-        INNER JOIN `golongans` ON `golongans`.`id` = `biodatas`.`golongan_id`");
+        $gajis = $this->_getSalary($periode->year, $periode->month);
         
         for ($i=0; $i < count($gajis); $i++) { 
             $gajis[$i]->potongan = $gajis[$i]->lama_telat*$gajis[$i]->biaya_telat;
@@ -50,14 +43,7 @@ class SalaryController extends Controller
     {
         $periode = Carbon::parse($request->input('periode'));
 
-        $gajis = DB::select("SELECT 0 AS total, 0 AS potongan, 0 AS tambahan, 0 AS lama_kerja, users.id, users.`name`, users.email, biodatas.`tgl_masuk`, biodatas.foto, biodatas.`status`, biodatas.`gapok` AS gapok, golongans.name AS gol, golongans.id AS gol_id, lemburs.nilai AS biaya_lembur, telats.nilai AS biaya_telat, 
-        COALESCE((SELECT SUM(lama_lembur) FROM absensis WHERE YEAR(`absen_masuk`) = ".$periode->year." AND MONTH(`absen_masuk`) = ".$periode->month." AND user_id = users.id),0) AS lama_lembur,
-        COALESCE((SELECT SUM(lama_telat) FROM absensis WHERE YEAR(`absen_masuk`) = ".$periode->year." AND MONTH(`absen_masuk`) = ".$periode->month." AND user_id = users.id),0) AS lama_telat
-        FROM `users`
-        INNER JOIN `biodatas` ON `biodatas`.`user_id` = `users`.`id` 
-        INNER JOIN `lemburs` ON `lemburs`.`status` = `biodatas`.`status` 
-        INNER JOIN `telats` ON `telats`.`status` = `biodatas`.`status`
-        INNER JOIN `golongans` ON `golongans`.`id` = `biodatas`.`golongan_id`");
+        $gajis = $this->_getSalary($periode->year, $periode->month);
         
         for ($i=0; $i < count($gajis); $i++) { 
             $gajis[$i]->potongan = $gajis[$i]->lama_telat*$gajis[$i]->biaya_telat;
@@ -74,5 +60,24 @@ class SalaryController extends Controller
         setlocale(LC_TIME, 'ID');
         $period = $periode->localeMonth." ".$periode->year;
         return view('pages.penggajian.print', compact('gajis', 'period'));
+    }
+    
+    private function _getSalary($year, $month)
+    {
+        return DB::table('users')
+        ->select(DB::raw('0 AS total, 0 AS potongan, 0 AS tambahan, 0 AS lama_kerja'))
+        ->select('users.id', 'users.name', 'users.email', 'biodatas.tgl_masuk', 
+                    'biodatas.foto', 'biodatas.status', 'biodatas.gapok AS gapok', 
+                    'golongans.name AS gol', 'golongans.id AS gol_id', 'lemburs.nilai AS biaya_lembur', 
+                    'telats.nilai AS biaya_telat')
+        ->selectRaw('COALESCE((SELECT SUM(lama_lembur) FROM absensis WHERE EXTRACT(year from absen_masuk) = ? AND EXTRACT(month from absen_masuk) = ? AND user_id = users.id),0) AS lama_lembur', 
+                    [$year, $month])
+        ->selectRaw('COALESCE((SELECT SUM(lama_telat) FROM absensis WHERE EXTRACT(year from absen_masuk) = ? AND EXTRACT(month from absen_masuk) = ? AND user_id = users.id),0) AS lama_telat', 
+                    [$year, $month])
+        ->join('biodatas', 'biodatas.user_id', '=', 'users.id')
+        ->join('lemburs', 'lemburs.status', '=', 'biodatas.status')
+        ->join('telats', 'telats.status', '=', 'biodatas.status')
+        ->join('golongans', 'golongans.id', '=', 'biodatas.golongan_id')
+        ->get();
     }
 }
