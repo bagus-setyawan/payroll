@@ -116,7 +116,7 @@ class PresensiController extends Controller
                 ]);
             }
 
-            if (!$this->sudahAbsen($date_now, $user->id)) {
+            if (!$this->_sudahAbsen($date_now, $user->id)) {
                 $data = [
                     'user_id' => $user->id,
                     'absen_masuk' => $jam_sekarang->toDateTimeString(),
@@ -169,7 +169,7 @@ class PresensiController extends Controller
         }
     }
 
-    public function sudahAbsen($date, $user_id)
+    private function _sudahAbsen($date, $user_id)
     {
         return DB::table('absensis')
                 ->whereDate('absen_masuk', $date)
