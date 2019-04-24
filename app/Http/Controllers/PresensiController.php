@@ -91,11 +91,18 @@ class PresensiController extends Controller
                         ->whereMonth('periode', date('m'))
                         ->select('libur')
                         ->first();
-            $libur = explode(',', $query->libur);
-            if (in_array(date('d'), $libur)) {
+            if ($query) {
+                $libur = explode(',', $query->libur);
+                if (in_array(date('d'), $libur)) {
+                    return response()->json([
+                        'error' => true,
+                        'msg' => "Hari ini libur guys ! Rajin amat."
+                    ]);
+                }
+            }else{
                 return response()->json([
                     'error' => true,
-                    'msg' => "Hari ini libur guys ! Rajin amat."
+                    'msg' => "Jadwal bulan ini belum ditentukan, hubungi admin"
                 ]);
             }
             
