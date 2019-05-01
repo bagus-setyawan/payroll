@@ -54,7 +54,7 @@
                         @csrf
                         <div class="form-group">
                             <label for="">Periode</label>
-                            <input type="text" class="form-control" name="periode" placeholder="Isi dengan format yyyy-mm-01" required>
+                            <input type="text" class="form-control" name="periode" placeholder="Isi dengan format yyyy-mm-01" autocomplete="off" required>
                         </div>
                         <div class="form-group">
                             <label for="">Libur</label>
@@ -68,4 +68,13 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('script')
+    $('input[name=periode]').datepicker({
+        autoclose: true,
+        format: "yyyy-mm-01",
+        startView: "months",
+        minViewMode: "months"
+    });
 @endsection

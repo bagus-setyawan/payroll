@@ -124,3 +124,10 @@
         </div>
     </div>
 @endsection
+
+@section('script')
+    $('input[name=tgl_masuk]').datepicker({
+        autoclose: true,
+        format: "yyyy-mm-dd"
+    });
+@endsection
