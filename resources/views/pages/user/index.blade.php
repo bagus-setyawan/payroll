@@ -20,12 +20,14 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Foto</th>
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Status</th>
                                 <th>Golongan</th>
                                 <th>Shift</th>
                                 <th>Tgl Masuk</th>
+                                <th>Masa Kerja</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -33,12 +35,14 @@
                             @foreach ($users as $user)
                                 <tr>
                                     <td>{{ $user->id }}</td>
+                                    <td><img src="{{ $user->biodata->foto }}" alt="{{ $user->name }}" class="img-responsive"></td>
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->biodata->status }}</td>
                                     <td>{{ $user->biodata->golongan->name }}</td>
                                     <td>{{ $user->biodata->shift->id }}</td>
                                     <td>{{ $user->biodata->tgl_masuk }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($user->biodata->tgl_masuk)->age }} tahun</td>
                                     <td>
                                         <div class="btn-group-vertical">
                                             <button onclick="window.open('{{ url('data/user/cetak/'.$user->id) }}')" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Kartu</button>
@@ -100,8 +104,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="">Foto</label>
-                            <input type="file" name="foto" id="foto" required>
+                            <label for="">Foto (Opsional)</label>
+                            <input type="file" name="foto" id="foto">
                         </div>
                         <div class="form-group">
                             <label for="">NIP</label>

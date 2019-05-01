@@ -35,8 +35,12 @@ class UsersController extends Controller
         ]);
         $user->save();
 
-        $filename = $this->getFileName($request->foto);
-        $request->foto->move(base_path('public/assets/images'), $filename);
+        if ($request->hasFile('foto')) {
+            $filename = $this->getFileName($request->foto);
+            $request->foto->move(base_path('public/assets/images'), $filename);
+        }else{
+            $filename = 'placeholder.png';
+        }
 
         $biodata = new Biodata;
         $biodata->fill([

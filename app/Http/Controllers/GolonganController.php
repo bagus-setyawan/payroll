@@ -22,7 +22,10 @@ class GolonganController extends Controller
         $golongan->fill($request->all());
         $golongan->save();
 
-        $request->session()->flash('msg', 'Golongan berhasil dibuat');
+        $request->session()->flash('msg', [
+            'text' => 'Golongan berhasil dibuat',
+            'class' => 'success'
+        ]);
         return redirect()->back();
     }
 
@@ -32,16 +35,36 @@ class GolonganController extends Controller
         $masa_kerja->fill($request->all());
         $masa_kerja->save();
 
-        $request->session()->flash('msg', 'Masa Kerja berhasil dibuat');
+        $request->session()->flash('msg', [
+            'text' => 'Masa Kerja berhasil dibuat',
+            'class' => 'success'
+        ]);
         return redirect()->back();
     }
 
     public function delete_golongan(Request $request)
     {
-        $golongan = Golongan::findOrFail($request->id)->delete();
-        $masa_kerja = MasaKerja::find($request->id)->delete();
+        $golongan = Golongan::findOrFail($request->id);
+        try {
+            $golongan->delete();
+        } catch (\Throwable $th) {
+            $request->session()->flash('msg', [
+                'text' => 'Golongan dan Masa kerja Gagal dihapus, masih ada user yang terkait',
+                'class' => 'danger'
+            ]);
+            return redirect()->back();
+        }
+        
+        $masa_kerja = MasaKerja::find($request->id);
 
-        $request->session()->flash('msg', 'Golongan dan Masa kerja berhasil dihapus');
+        if ($masa_kerja) {
+            $masa_kerja->delete();
+        }
+
+        $request->session()->flash('msg', [
+            'text' => 'Golongan dan Masa kerja berhasil dihapus',
+            'class' => 'success'
+        ]);
         return redirect()->back();
     }
     
@@ -49,7 +72,33 @@ class GolonganController extends Controller
     {
         $masa_kerja = MasaKerja::findOrFail($request->id)->delete();
 
-        $request->session()->flash('msg', 'Masa kerja berhasil dihapus');
+        $request->session()->flash('msg', [
+            'text' => 'Masa kerja berhasil dihapus',
+            'class' => 'success'
+        ]);
+        return redirect()->back();
+    }
+
+    public function show(Request $request)
+    {
+        $golongan = Golongan::findOrFail($request->id);
+
+        return response()->json($golongan);
+    }
+
+    public function update(Request $request)
+    {
+        $golongan = Golongan::findOrFail($request->id);
+
+        $golongan->name = $request->name;
+        $golongan->description = $request->description;
+
+        $golongan->save();
+
+        $request->session()->flash('msg', [
+            'text' => 'Golongan berhasil diupdate',
+            'class' => 'success'
+        ]);
         return redirect()->back();
     }
 }

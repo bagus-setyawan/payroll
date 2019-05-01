@@ -49,6 +49,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('golongan', 'GolonganController@index');
         Route::group(['prefix' => 'golongan'], function () {
             Route::get('create', 'GolonganController@create');
+            Route::get('show', 'GolonganController@show');
+            Route::post('update', 'GolonganController@update');
             Route::post('store_golongan', 'GolonganController@store_golongan');
             Route::post('store_masa_kerja', 'GolonganController@store_masa_kerja');
             Route::post('delete_golongan', 'GolonganController@delete_golongan');
@@ -71,5 +73,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('', 'SalaryController@index');
         Route::get('proses', 'SalaryController@proses');
         Route::get('print', 'SalaryController@print');
+        Route::post('update_lembur', 'SalaryController@update_lembur');
+        Route::post('update_telat', 'SalaryController@update_telat');
     });
 });

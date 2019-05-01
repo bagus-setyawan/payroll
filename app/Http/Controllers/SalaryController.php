@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Telat;
 use App\Jadwal;
+use App\Lembur;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +15,10 @@ class SalaryController extends Controller
     public function index()
     {
         $jadwals = Jadwal::all();
-        return view('pages.penggajian.index', compact('jadwals'));
+        $lemburs = Lembur::all();
+        $telats = Telat::all();
+        
+        return view('pages.penggajian.index', compact('jadwals', 'lemburs', 'telats'));
     }
 
     public function proses(Request $request)
@@ -27,10 +32,15 @@ class SalaryController extends Controller
             $gajis[$i]->tambahan = $gajis[$i]->lama_lembur*$gajis[$i]->biaya_lembur;
             $gajis[$i]->lama_kerja = Carbon::parse($gajis[$i]->tgl_masuk)->age;
             if ($gajis[$i]->status === 'pns') {
-                $gajis[$i]->gapok = DB::table('masa_kerjas')->select('gapok')
-                                        ->where('golongan_id', $gajis[$i]->gol_id)
-                                        ->where('lama', Carbon::parse($gajis[$i]->tgl_masuk)->age)
-                                        ->first()->gapok;
+                $gapok = DB::table('masa_kerjas')->select('gapok')
+                                ->where('golongan_id', $gajis[$i]->gol_id)
+                                ->where('lama', Carbon::parse($gajis[$i]->tgl_masuk)->age)
+                                ->first();
+                if ($gapok) {
+                    $gajis[$i]->gapok = $gapok->gapok;
+                }else{
+                    $gajis[$i]->gapok = 0;
+                }
             }
             $gajis[$i]->total = $gajis[$i]->gapok+$gajis[$i]->tambahan-$gajis[$i]->potongan;
         }
@@ -50,10 +60,15 @@ class SalaryController extends Controller
             $gajis[$i]->tambahan = $gajis[$i]->lama_lembur*$gajis[$i]->biaya_lembur;
             $gajis[$i]->lama_kerja = Carbon::parse($gajis[$i]->tgl_masuk)->age;
             if ($gajis[$i]->status === 'pns') {
-                $gajis[$i]->gapok = DB::table('masa_kerjas')->select('gapok')
+                $gapok = DB::table('masa_kerjas')->select('gapok')
                                         ->where('golongan_id', $gajis[$i]->gol_id)
                                         ->where('lama', Carbon::parse($gajis[$i]->tgl_masuk)->age)
-                                        ->first()->gapok;
+                                        ->first();
+                if ($gapok) {
+                    $gajis[$i]->gapok = $gapok->gapok;
+                }else{
+                    $gajis[$i]->gapok = 0;
+                }
             }
             $gajis[$i]->total = $gajis[$i]->gapok+$gajis[$i]->tambahan-$gajis[$i]->potongan;
         }
@@ -79,5 +94,27 @@ class SalaryController extends Controller
         ->join('telats', 'telats.status', '=', 'biodatas.status')
         ->join('golongans', 'golongans.id', '=', 'biodatas.golongan_id')
         ->get();
+    }
+
+    public function update_lembur(Request $request)
+    {
+        DB::transaction(function () use ($request) {
+            DB::update('update lemburs set nilai = ? where status = ?', [$request->lembur_pns, 'pns']);
+            DB::update('update lemburs set nilai = ? where status = ?', [$request->lembur_non_pns, 'nonpns']);
+        });
+
+        $request->session()->flash('msg', 'Seting lembur berhasil diubah !');
+        return redirect()->back();
+    }
+
+    public function update_telat(Request $request)
+    {
+        DB::transaction(function () use ($request) {
+            DB::update('update telats set nilai = ? where status = ?', [$request->telat_pns, 'pns']);
+            DB::update('update telats set nilai = ? where status = ?', [$request->telat_non_pns, 'nonpns']);
+        });
+
+        $request->session()->flash('msg', 'Seting telat berhasil diubah !');
+        return redirect()->back();
     }
 }

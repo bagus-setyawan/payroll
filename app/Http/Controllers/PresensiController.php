@@ -129,7 +129,7 @@ class PresensiController extends Controller
                     'absen_masuk' => $jam_sekarang->toDateTimeString(),
                     'capture_masuk' => $request->input('capture')
                 ];
-                if ($jam_masuk->diffInMinutes($jam_sekarang, false) > 0) {
+                if ($jam_masuk->diffInMinutes($jam_sekarang, false) > 15) {
                     $data['lama_telat'] = ceil($jam_masuk->diffInMinutes($jam_sekarang, false)/60);
                 }
                 Absensi::create($data);
